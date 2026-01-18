@@ -27,11 +27,9 @@ This graph corresponds to the function u(x_0,t) at a fixed position x_0.
 Key Physics Concepts Illustrated
 Traveling Waves
 The simulation uses the standard traveling-wave form:
-	Right-moving wave:
-u(x,t)=u_0 (x-ct)
+	Right-moving wave: u(x,t)=u_0 (x-ct)
 
-	Left-moving wave:
-u(x,t)=u_0 (x+ct)
+	Left-moving wave: u(x,t)=u_0 (x+ct)
 
 where:
 	u_0 (x) is the pulse shape,
