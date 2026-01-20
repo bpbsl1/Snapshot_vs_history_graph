@@ -58,12 +58,24 @@ function draw() {
   const left = pad;
   const right = width - pad;
 
-  drawAxes(left, pad, right, pad + topH, "x", "Displacement",
-           `${pulseName} Pulse Traveling ${direction}   (t=${t.toFixed(2)} s)`);
+  drawAxes(
+  left, pad, right, pad + topH,
+  "x", "Displacement",
+  `${pulseName} Pulse Traveling ${direction}   (t=${t.toFixed(2)} s)`,
+  xMin, xMax,
+  -height - 0.1, height + 0.1
+);
+
   drawSnapshot(left, pad, right, pad + topH);
 
-  drawAxes(left, pad + topH + 30, right, pad + topH + 30 + bottomH, "Time", "Displacement",
-           `History at x = ${xPoint.toFixed(2)}`);
+  drawAxes(
+  left, pad + topH + 30, right, pad + topH + 30 + bottomH,
+  "Time", "Displacement",
+  `History at x = ${xPoint.toFixed(2)}`,
+  0, tMax,
+  -height - 0.1, height + 0.1
+);
+
   drawHistory(left, pad + topH + 30, right, pad + topH + 30 + bottomH);
 }
 
@@ -164,29 +176,67 @@ function drawHistory(x0, y0, x1, y1) {
   endShape();
 }
 
-function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title) {
+function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
+                  xMinVal, xMaxVal, yMinVal, yMaxVal) {
+
+  // Box
   stroke(0);
   strokeWeight(1);
   noFill();
   rect(x0, y0, x1 - x0, y1 - y0);
 
+  // Title
   noStroke();
   fill(0);
   textSize(14);
   textAlign(LEFT, BOTTOM);
   text(title, x0, y0 - 6);
 
+  // Axis labels
   textSize(12);
   textAlign(CENTER, TOP);
-  text(xlabel, (x0 + x1) / 2, y1 + 6);
+  text(xlabel, (x0 + x1) / 2, y1 + 10);
 
   push();
-  translate(x0 - 18, (y0 + y1) / 2);
+  translate(x0 - 28, (y0 + y1) / 2);
   rotate(-HALF_PI);
   textAlign(CENTER, TOP);
   text(ylabel, 0, 0);
   pop();
+
+  // ---- TICKS ----
+  textSize(10);
+  fill(0);
+  stroke(0);
+
+  const nXTicks = 6;
+  const nYTicks = 5;
+
+  // X-axis ticks
+  for (let i = 0; i <= nXTicks; i++) {
+    const val = lerp(xMinVal, xMaxVal, i / nXTicks);
+    const px = map(val, xMinVal, xMaxVal, x0, x1);
+
+    line(px, y1, px, y1 + 5); // tick
+    noStroke();
+    textAlign(CENTER, TOP);
+    text(val.toFixed(1), px, y1 + 8);
+    stroke(0);
+  }
+
+  // Y-axis ticks
+  for (let j = 0; j <= nYTicks; j++) {
+    const val = lerp(yMinVal, yMaxVal, j / nYTicks);
+    const py = map(val, yMinVal, yMaxVal, y1, y0);
+
+    line(x0 - 5, py, x0, py); // tick
+    noStroke();
+    textAlign(RIGHT, CENTER);
+    text(val.toFixed(1), x0 - 8, py);
+    stroke(0);
+  }
 }
+
 
 function buildUI() {
   const holder = select("#ui");
@@ -274,3 +324,4 @@ function resetSim() {
   histT = [];
   histU = [];
 }
+
