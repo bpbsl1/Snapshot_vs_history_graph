@@ -60,7 +60,7 @@ function draw() {
   const topH = 260;
   const bottomH = 200;
   const gap = 70; // increased gap to avoid overlap
-  const left = pad;
+  const left = pad+50;
   const right = width - pad;
 
   // Snapshot (top)
@@ -362,4 +362,5 @@ function resetSim() {
   histT = [];
   histU = [];
 }
+
 
