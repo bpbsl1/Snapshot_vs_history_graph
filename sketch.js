@@ -27,7 +27,7 @@ const HIST_MAX = 2000;
 let ui = {};
 
 function setup() {
-  const canvas = createCanvas(1000, 620);
+  const canvas = createCanvas(1000, 720);
   canvas.parent("canvas-holder");
   pixelDensity(1); // consistent rendering
 
@@ -59,7 +59,7 @@ function draw() {
   const pad = 28;
   const topH = 260;
   const bottomH = 200;
-  const gap = 40; // increased gap to avoid overlap
+  const gap = 70; // increased gap to avoid overlap
   const left = pad;
   const right = width - pad;
 
@@ -203,20 +203,20 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
   noFill();
   rect(x0, y0, x1 - x0, y1 - y0);
 
-  // Title (placed inside the top-left of the box)
+  // Title (above box)
   noStroke();
   fill(0);
   textSize(14);
-  textAlign(LEFT, TOP);
-  text(title, x0 + 6, y0 + 6);
+  textAlign(LEFT, BOTTOM);
+  text(title, x0, y0 - 6);
 
-  // Axis labels (x inside below axis, y inside on left)
+  // Axis labels (x below box, y left of box)
   textSize(12);
   textAlign(CENTER, TOP);
-  text(xlabel, (x0 + x1) / 2, y1 - 18);
+  text(xlabel, (x0 + x1) / 2, y1 + 34);
 
   push();
-  translate(x0 + 6, (y0 + y1) / 2);
+  translate(x0 - 55, (y0 + y1) / 2);
   rotate(-HALF_PI);
   textAlign(CENTER, TOP);
   text(ylabel, 0, 0);
@@ -227,24 +227,37 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
   fill(0);
   stroke(0);
 
-  // sensible number of ticks depending on width/height
   const nXTicks = 6;
   const nYTicks = 5;
 
-  // X-axis ticks (draw INSIDE the box so they don't overlap the next plot)
+  // X-axis ticks + labels (below box)
   for (let i = 0; i <= nXTicks; i++) {
     const val = lerp(xMinVal, xMaxVal, i / nXTicks);
     const px = map(val, xMinVal, xMaxVal, x0, x1);
 
-    // tick goes upward into the plot
-    line(px, y1, px, y1 - 6);
+    // tick below axis
+    line(px, y1, px, y1 + 6);
 
     noStroke();
-    textAlign(CENTER, BOTTOM);
-    // label sits just above the bottom edge (inside)
-    text(val.toFixed(1), px, y1 - 8);
+    textAlign(CENTER, TOP);
+    text(val.toFixed(1), px, y1 + 10);
     stroke(0);
   }
+
+  // Y-axis ticks + labels (left of box)
+  for (let j = 0; j <= nYTicks; j++) {
+    const val = lerp(yMinVal, yMaxVal, j / nYTicks);
+    const py = map(val, yMinVal, yMaxVal, y1, y0);
+
+    // tick left of axis
+    line(x0 - 6, py, x0, py);
+
+    noStroke();
+    textAlign(RIGHT, CENTER);
+    text(val.toFixed(1), x0 - 10, py);
+    stroke(0);
+  }
+}
 
   // Y-axis ticks (draw inside the box)
   for (let j = 0; j <= nYTicks; j++) {
@@ -349,3 +362,4 @@ function resetSim() {
   histT = [];
   histU = [];
 }
+
