@@ -1,9 +1,12 @@
-// Wave Pulse Simulation (p5.js)
+// sketch.js - Full updated file with improved axis ticks and spacing
+// Wave Pulse Simulation (p5.js) - complete script
 
+// Domain and sampling
 const xMin = 0;
 const xMax = 15;
 let nPts = 500;
 
+// Parameters (controlled by UI)
 let direction = "Right";
 let cWave = 1.0;
 let height = 1.0;
@@ -24,9 +27,9 @@ const HIST_MAX = 2000;
 let ui = {};
 
 function setup() {
-  const canvas = createCanvas(600, 400);
+  const canvas = createCanvas(1000, 620);
   canvas.parent("canvas-holder");
-  pixelDensity(1);
+  pixelDensity(1); // consistent rendering
 
   buildUI();
   resetSim();
@@ -52,32 +55,38 @@ function draw() {
     }
   }
 
+  // Layout
   const pad = 28;
   const topH = 260;
   const bottomH = 200;
+  const gap = 40; // increased gap to avoid overlap
   const left = pad;
   const right = width - pad;
 
+  // Snapshot (top)
   drawAxes(
-  left, pad, right, pad + topH,
-  "x", "Displacement",
-  `${pulseName} Pulse Traveling ${direction}   (t=${t.toFixed(2)} s)`,
-  xMin, xMax,
-  -height - 0.1, height + 0.1
-);
-
+    left, pad, right, pad + topH,
+    "x", "Displacement",
+    `${pulseName} Pulse Traveling ${direction}   (t=${t.toFixed(2)} s)`,
+    xMin, xMax,
+    -height - 0.1, height + 0.1
+  );
   drawSnapshot(left, pad, right, pad + topH);
 
+  // History (bottom)
+  const histY0 = pad + topH + gap;
+  const histY1 = histY0 + bottomH;
   drawAxes(
-  left, pad + topH + 30, right, pad + topH + 30 + bottomH,
-  "Time", "Displacement",
-  `History at x = ${xPoint.toFixed(2)}`,
-  0, tMax,
-  -height - 0.1, height + 0.1
-);
-
-  drawHistory(left, pad + topH + 30, right, pad + topH + 30 + bottomH);
+    left, histY0, right, histY1,
+    "Time", "Displacement",
+    `History at x = ${xPoint.toFixed(2)}`,
+    0, tMax,
+    -height - 0.1, height + 0.1
+  );
+  drawHistory(left, histY0, right, histY1);
 }
+
+/* ---------------- Physics ---------------- */
 
 function uAt(x, tNow) {
   const sgn = (direction === "Right") ? -1 : +1;
@@ -138,7 +147,10 @@ function trapezoid(x) {
   return 0;
 }
 
+/* ---------------- Drawing helpers ---------------- */
+
 function drawSnapshot(x0, y0, x1, y1) {
+  // Curve
   stroke(0);
   strokeWeight(2);
   noFill();
@@ -153,6 +165,7 @@ function drawSnapshot(x0, y0, x1, y1) {
   }
   endShape();
 
+  // Red dot
   const yPoint = uAt(xPoint, t);
   const px = map(xPoint, xMin, xMax, x0, x1);
   const py = map(yPoint, -height - 0.1, height + 0.1, y1, y0);
@@ -162,6 +175,7 @@ function drawSnapshot(x0, y0, x1, y1) {
 }
 
 function drawHistory(x0, y0, x1, y1) {
+  // History curve in red
   stroke(220, 0, 0);
   strokeWeight(2);
   noFill();
@@ -176,6 +190,10 @@ function drawHistory(x0, y0, x1, y1) {
   endShape();
 }
 
+//
+// drawAxes now draws tick marks and labels INSIDE the plotting box
+// signature: drawAxes(x0,y0,x1,y1, xlabel, ylabel, title, xMinVal, xMaxVal, yMinVal, yMaxVal)
+//
 function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
                   xMinVal, xMaxVal, yMinVal, yMaxVal) {
 
@@ -185,21 +203,20 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
   noFill();
   rect(x0, y0, x1 - x0, y1 - y0);
 
-  // Title
+  // Title (placed inside the top-left of the box)
   noStroke();
   fill(0);
   textSize(14);
-  textAlign(LEFT, BOTTOM);
-  text(title, x0 + 6, y0 + 16);
+  textAlign(LEFT, TOP);
+  text(title, x0 + 6, y0 + 6);
 
-
-  // Axis labels
+  // Axis labels (x inside below axis, y inside on left)
   textSize(12);
   textAlign(CENTER, TOP);
-  text(xlabel, (x0 + x1) / 2, y1 + 10);
+  text(xlabel, (x0 + x1) / 2, y1 - 18);
 
   push();
-  translate(x0 - 28, (y0 + y1) / 2);
+  translate(x0 + 6, (y0 + y1) / 2);
   rotate(-HALF_PI);
   textAlign(CENTER, TOP);
   text(ylabel, 0, 0);
@@ -210,10 +227,11 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
   fill(0);
   stroke(0);
 
+  // sensible number of ticks depending on width/height
   const nXTicks = 6;
   const nYTicks = 5;
 
-    // X-axis ticks (draw INSIDE the box so they don't overlap the next plot)
+  // X-axis ticks (draw INSIDE the box so they don't overlap the next plot)
   for (let i = 0; i <= nXTicks; i++) {
     const val = lerp(xMinVal, xMaxVal, i / nXTicks);
     const px = map(val, xMinVal, xMaxVal, x0, x1);
@@ -228,20 +246,22 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
     stroke(0);
   }
 
-
-  // Y-axis ticks
+  // Y-axis ticks (draw inside the box)
   for (let j = 0; j <= nYTicks; j++) {
     const val = lerp(yMinVal, yMaxVal, j / nYTicks);
     const py = map(val, yMinVal, yMaxVal, y1, y0);
 
-    line(x0 - 5, py, x0, py); // tick
+    // tick goes rightward into the plot
+    line(x0, py, x0 + 6, py);
+
     noStroke();
     textAlign(RIGHT, CENTER);
-    text(val.toFixed(1), x0 - 8, py);
+    text(val.toFixed(1), x0 + 4, py); // number inside, slightly right of left edge
     stroke(0);
   }
 }
 
+/* ---------------- UI ---------------- */
 
 function buildUI() {
   const holder = select("#ui");
@@ -329,5 +349,3 @@ function resetSim() {
   histT = [];
   histU = [];
 }
-
-
