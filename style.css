@@ -53,3 +53,16 @@ small {
     grid-template-columns: 1fr;
   }
 }
+
+#canvas-holder {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 10px;
+  overflow: visible; /* IMPORTANT: don't crop the canvas */
+}
+
+canvas {
+  display: block; /* avoids weird baseline spacing */
+}
+
