@@ -24,7 +24,7 @@ const HIST_MAX = 2000;
 let ui = {};
 
 function setup() {
-  const canvas = createCanvas(900, 520);
+  const canvas = createCanvas(600, 400);
   canvas.parent("canvas-holder");
   pixelDensity(1);
 
@@ -190,7 +190,8 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
   fill(0);
   textSize(14);
   textAlign(LEFT, BOTTOM);
-  text(title, x0, y0 - 6);
+  text(title, x0 + 6, y0 + 16);
+
 
   // Axis labels
   textSize(12);
@@ -212,17 +213,21 @@ function drawAxes(x0, y0, x1, y1, xlabel, ylabel, title,
   const nXTicks = 6;
   const nYTicks = 5;
 
-  // X-axis ticks
+    // X-axis ticks (draw INSIDE the box so they don't overlap the next plot)
   for (let i = 0; i <= nXTicks; i++) {
     const val = lerp(xMinVal, xMaxVal, i / nXTicks);
     const px = map(val, xMinVal, xMaxVal, x0, x1);
 
-    line(px, y1, px, y1 + 5); // tick
+    // tick goes upward into the plot
+    line(px, y1, px, y1 - 6);
+
     noStroke();
-    textAlign(CENTER, TOP);
-    text(val.toFixed(1), px, y1 + 8);
+    textAlign(CENTER, BOTTOM);
+    // label sits just above the bottom edge (inside)
+    text(val.toFixed(1), px, y1 - 8);
     stroke(0);
   }
+
 
   // Y-axis ticks
   for (let j = 0; j <= nYTicks; j++) {
@@ -324,4 +329,5 @@ function resetSim() {
   histT = [];
   histU = [];
 }
+
 
