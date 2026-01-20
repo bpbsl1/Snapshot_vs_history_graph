@@ -27,8 +27,13 @@ const HIST_MAX = 2000;
 let ui = {};
 
 function setup() {
-  const canvas = createCanvas(1000, 720);
-  canvas.parent("canvas-holder");
+const holder = document.getElementById("canvas-holder");
+const w = holder.clientWidth - 20;   // minus padding
+const h = 760;                       // increase if you want more room
+
+const canvas = createCanvas(w, h);
+canvas.parent("canvas-holder");
+
   pixelDensity(1); // consistent rendering
 
   buildUI();
@@ -355,6 +360,12 @@ function readUI() {
   t = constrain(t, 0, tMax);
 }
 
+function windowResized() {
+  const holder = document.getElementById("canvas-holder");
+  const w = holder.clientWidth - 20;
+  resizeCanvas(w, height);
+}
+
 function resetSim() {
   playing = false;
   ui.playBtn?.html("Play");
@@ -362,5 +373,6 @@ function resetSim() {
   histT = [];
   histU = [];
 }
+
 
 
